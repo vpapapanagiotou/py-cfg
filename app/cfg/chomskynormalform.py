@@ -1,10 +1,10 @@
 from typing import List, Set
 
 from cfg.example import fully_erasable
-from cfg.rule import Alphabet
+from cfg.alphabet import Alphabet
 from cfg.contextfreegrammar import ContextFreeGrammar
-from cfg.examples import Rule
-from cfg.alphabet import Symbol, SymbolString
+from cfg.rule import Rule
+from cfg.symbol import Symbol, SymbolString
 
 
 def is_in_chomsky_normal_form(cfg: ContextFreeGrammar) -> bool:
@@ -41,7 +41,7 @@ def _cnf_long_rules(cfg: ContextFreeGrammar) -> List[Rule]:
         frm = rule.frm
         for i in range(len(rule.to) - 2):
             to0 = rule.to[i]
-            to1 = Symbol(symbol=f'{frm_str}_{i}', is_terminal=False)
+            to1 = Symbol(label=f'{frm_str}_{i}', is_terminal=False)
             new_rules.append(Rule(frm, [to0, to1]))
             frm = to1
         new_rules.append(Rule(frm, rule.to[-2:]))

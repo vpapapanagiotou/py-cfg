@@ -1,8 +1,8 @@
 from typing import List
 
-from cfg.rule import Alphabet
-from cfg.examples import Rule
-from cfg.alphabet import Symbol, SymbolString
+from cfg.alphabet import Alphabet
+from cfg.rule import Rule
+from cfg.symbol import Symbol, SymbolString
 from cfg.utilities import is_list_of_instance
 
 

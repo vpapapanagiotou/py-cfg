@@ -1,6 +1,6 @@
 from typing import List, Optional, Union
 
-from cfg.alphabet import Symbol, SymbolString
+from cfg.symbol import Symbol, SymbolString
 from cfg.utilities import is_list_of_instance
 
 

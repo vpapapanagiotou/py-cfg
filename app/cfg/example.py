@@ -1,13 +1,13 @@
 from cfg.contextfreegrammar import ContextFreeGrammar
-from cfg.examples import Rule
-from cfg.rule import Alphabet
+from cfg.rule import Rule
+from cfg.alphabet import Alphabet
 from cfg.alphabet import Symbol
 
 
 def toy_cfg() -> ContextFreeGrammar:
-    A = Symbol(symbol='A', is_terminal=False)
-    a = Symbol(symbol='a', is_terminal=True)
-    b = Symbol(symbol='b', is_terminal=True)
+    A = Symbol(label='A', is_terminal=False)
+    a = Symbol(label='a', is_terminal=True)
+    b = Symbol(label='b', is_terminal=True)
 
     alphabet = Alphabet(symbols=[A, a, b])
 
@@ -17,8 +17,8 @@ def toy_cfg() -> ContextFreeGrammar:
 
 
 def parenthesis() -> ContextFreeGrammar:
-    left_bracket = Symbol(symbol='(', is_terminal=True)
-    right_bracket = Symbol(symbol=')', is_terminal=True)
+    left_bracket = Symbol(label='(', is_terminal=True)
+    right_bracket = Symbol(label=')', is_terminal=True)
 
     alphabet = Alphabet(symbols=[left_bracket, right_bracket])
     S = alphabet.get_start_symbol()
@@ -33,8 +33,8 @@ def parenthesis() -> ContextFreeGrammar:
 
 
 def fully_erasable() -> ContextFreeGrammar:
-    A = Symbol(symbol='A', is_terminal=False)
-    B = Symbol(symbol='B', is_terminal=False)
+    A = Symbol(label='A', is_terminal=False)
+    B = Symbol(label='B', is_terminal=False)
 
     alphabet = Alphabet(symbols=[A, B])
     S = alphabet.get_start_symbol()

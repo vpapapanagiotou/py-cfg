@@ -3,38 +3,42 @@ from typing import Generator, List, Optional
 from cfg.utilities import is_list_of_instance, is_optional_instance
 
 
+START_LABEL: str = 'S'
+EMPTY_STRING_LABEL: str = 'e'
+
+
 class Symbol:
-    symbol: str
+    label: str
     is_terminal: bool
     is_non_terminal: bool
     description: Optional[str] = None
 
-    def __init__(self, symbol: str, is_terminal: bool, description: Optional[str] = None):
-        assert isinstance(symbol, str)
+    def __init__(self, label: str, is_terminal: bool, description: Optional[str] = None):
+        assert isinstance(label, str)
         assert isinstance(is_terminal, bool)
         assert is_optional_instance(description, str)
 
-        if ' ' in symbol:
+        if ' ' in label:
             raise ValueError('Spaces are not allowed in symbols')
 
-        self.symbol = symbol
+        self.label = label
         self.is_terminal = is_terminal
         self.is_non_terminal = not is_terminal
         self.description = description
 
     def __eq__(self, other) -> bool:
         if isinstance(other, Symbol):
-            return self.symbol == other.symbol
+            return self.label == other.label
         elif isinstance(other, str):
-            return self.symbol == other
+            return self.label == other
         else:
             return False
 
     def __hash__(self) -> int:
-        return hash((self.symbol, self.is_terminal))
+        return hash((self.label, self.is_terminal))
 
     def __str__(self, extended: bool = False) -> str:
-        return self.symbol
+        return self.label
 
 
 class SymbolString:
