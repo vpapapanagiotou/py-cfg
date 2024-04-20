@@ -23,3 +23,4 @@ class EarleyParserTests(TestCase):
             cfg = example.loup_vaillant_1()
             accepted = ['1+(2*3-4)']
             not_accepted = ['1+']
+            self._check(cfg, accepted, not_accepted)
