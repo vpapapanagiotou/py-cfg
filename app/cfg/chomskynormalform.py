@@ -2,7 +2,6 @@ from typing import List, Set
 
 from cfg.alphabet import alphabet_from
 from cfg.contextfreegrammar import ContextFreeGrammar
-from cfg.example import example_3_6_1
 from cfg.rule import Rule
 from cfg.symbol import Symbol
 
@@ -121,7 +120,9 @@ def _remove_short_rules(cfg: ContextFreeGrammar) -> ContextFreeGrammar:
 
 
 if __name__ == "__main__":
-    cfg = example_3_6_1()
+    from cfg.example import etc_3_6_1
+
+    cfg = etc_3_6_1()
     print(cfg)
 
     cfg1 = _remove_long_rules(cfg)

@@ -4,84 +4,7 @@ from cfg.alphabet import Alphabet
 from cfg.alphabet import Symbol
 
 
-def toy_cfg() -> ContextFreeGrammar:
-    A = Symbol('A')
-    a = Symbol('a')
-    b = Symbol('b')
-
-    alphabet = Alphabet(symbols=[A, a, b])
-
-    rules = [
-        Rule(alphabet.get_start_symbol(), [A]),
-        Rule(A, [a]),
-        Rule(A, [b])
-    ]
-
-    return ContextFreeGrammar(alphabet, rules)
-
-
-def parenthesis() -> ContextFreeGrammar:
-    left_bracket = Symbol('(', True)
-    right_bracket = Symbol(')', True)
-
-    alphabet = Alphabet([left_bracket, right_bracket])
-    S = alphabet.get_start_symbol()
-
-    rules = [
-        Rule(S, [left_bracket, S, right_bracket]),
-        Rule(S, [S, S]),
-        Rule(S, [alphabet.get_empty_string_symbol()])
-    ]
-
-    return ContextFreeGrammar(alphabet=alphabet, rules=rules)
-
-
-def fully_erasable() -> ContextFreeGrammar:
-    A = Symbol('A', False)
-    B = Symbol('B', False)
-
-    alphabet = Alphabet([A, B])
-    S = alphabet.get_start_symbol()
-    e = alphabet.get_empty_string_symbol()
-
-    rules = [
-        Rule(S, [A, B]),
-        Rule(S, [A]),
-        Rule(A, [e]),
-        Rule(S, [B]),
-        Rule(B, [S]),
-        Rule(B, [A])
-    ]
-
-    return ContextFreeGrammar(alphabet, rules)
-
-
-def partially_erasable() -> ContextFreeGrammar:
-    A = Symbol('A', False)
-    B = Symbol('B', False)
-    C = Symbol('B', False)
-    c = Symbol('c', True)
-
-    alphabet = Alphabet([A, B])
-    S = alphabet.get_start_symbol()
-    e = alphabet.get_empty_string_symbol()
-
-    rules = [
-        Rule(S, [A, B]),
-        Rule(S, [A]),
-        Rule(A, [e]),
-        Rule(S, [B]),
-        Rule(B, [S]),
-        Rule(B, [A]),
-        Rule(A, [c]),
-        Rule(B, [C]),
-        Rule(C, [c])
-    ]
-
-    return ContextFreeGrammar(alphabet, rules)
-
-
-def example_3_6_1() -> ContextFreeGrammar:
+def etc_3_6_1() -> ContextFreeGrammar:
     left_parenthesis = Symbol('(')
     right_parenthesis = Symbol(')')
 
@@ -98,7 +21,7 @@ def example_3_6_1() -> ContextFreeGrammar:
     return ContextFreeGrammar(alphabet, rules)
 
 
-def loup_vaillant() -> ContextFreeGrammar:
+def loup_vaillant_1() -> ContextFreeGrammar:
     sum_symbol = Symbol('Sum')
     product_symbol = Symbol('Product')
     factor_symbol = Symbol('Factor')
@@ -129,5 +52,36 @@ def loup_vaillant() -> ContextFreeGrammar:
     ]
     rules.extend([Rule(number_symbol, [num_symbols[i], number_symbol]) for i in range(10)])
     rules.extend([Rule(number_symbol, [num_symbols[i]]) for i in range(10)])
+
+    return ContextFreeGrammar(alphabet, rules)
+
+
+def loup_vaillant_2() -> ContextFreeGrammar:
+    A = Symbol('A')
+    alphabet = Alphabet([A])
+
+    S = alphabet.get_start_symbol()
+    e = alphabet.get_empty_string_symbol()
+
+    rules = [Rule(S, [e]), Rule(S, [A]), Rule(A, [S])]
+
+    return ContextFreeGrammar(alphabet, rules)
+
+
+def lebill_1() -> ContextFreeGrammar:
+    X = Symbol('X')
+    a = Symbol('a')
+    b = Symbol('b')
+    c = Symbol('c')
+
+    alphabet = Alphabet([X, a, b, c])
+    S = alphabet.get_start_symbol()
+    e = alphabet.get_empty_string_symbol()
+
+    rules = [
+        Rule(S, [a, X, c]),
+        Rule(X, [b]),
+        Rule(X, [e])
+    ]
 
     return ContextFreeGrammar(alphabet, rules)

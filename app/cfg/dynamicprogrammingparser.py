@@ -1,12 +1,12 @@
 import numpy as np
 
-from cfg import example
 from cfg.chomskynormalform import chomsky_normal_form, is_in_chomsky_normal_form
 from cfg.contextfreegrammar import ContextFreeGrammar
+from cfg.symbol import Symbol
 from cfg.symbolstring import SymbolString
 
 
-def _state_matrix(cfg: ContextFreeGrammar, string: SymbolString):
+def _state_matrix(cfg: ContextFreeGrammar, string: SymbolString) -> np.ndarray:
     assert is_in_chomsky_normal_form(cfg)
 
     n: int = len(string)
@@ -29,29 +29,36 @@ def _state_matrix(cfg: ContextFreeGrammar, string: SymbolString):
     return state_matrix
 
 
+class DynamicProgrammingParserResult:
+    _state_matrix: np.ndarray
+    in_language: bool
+
+    def __init__(self, _state_matrix: np.ndarray, start_symbol: Symbol):
+        self._state_matrix = _state_matrix
+
+        self.in_language = start_symbol in _state_matrix[0, -1]
+
+
 class DynamicProgrammingParser:
     cfg: ContextFreeGrammar
-    string: SymbolString
-    _state_matrix: np.ndarray
 
-    def __init__(self, cfg: ContextFreeGrammar, string: SymbolString):
+    def __init__(self, cfg: ContextFreeGrammar):
         assert isinstance(cfg, ContextFreeGrammar)
-        assert isinstance(string, SymbolString)
 
-        self.cfg = cfg
-        self.string = string
-        self._state_matrix = _state_matrix(cfg, string)
+        if is_in_chomsky_normal_form(cfg):
+            self.cfg = cfg
+        else:
+            self.cfg = chomsky_normal_form(cfg)
 
-    def string_in_language(self) -> bool:
-        return cfg.alphabet.get_start_symbol() in self._state_matrix[0, -1]
-
-
-def string_in_language(cfg: ContextFreeGrammar, string: SymbolString) -> bool:
-    return DynamicProgrammingParser(cfg, string).string_in_language()
+    def parse(self, string: SymbolString) -> DynamicProgrammingParserResult:
+        state_matrix = _state_matrix(self.cfg, string)
+        return DynamicProgrammingParserResult(state_matrix, self.cfg.alphabet.get_start_symbol())
 
 
 if __name__ == "__main__":
-    cfg = example.example_3_6_1()
+    from cfg.example import etc_3_6_1
+
+    cfg = etc_3_6_1()
     cfg1 = chomsky_normal_form(cfg)
 
     lp = cfg1.alphabet.get_by_label('(')
@@ -59,4 +66,4 @@ if __name__ == "__main__":
     string = SymbolString([lp, lp, rp, lp, lp, rp, rp, rp])
     print(string)
 
-    print(string_in_language(cfg1, string))
+    print(DynamicProgrammingParser(cfg1).parse(string).in_language)
