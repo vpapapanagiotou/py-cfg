@@ -40,10 +40,13 @@ class Alphabet:
     def get_empty_string_symbol(self) -> Symbol:
         return self[1]
 
-    def get_by_label(self, label: str) -> Optional[None]:
-        result = list(filter(lambda symbol: symbol == label, self.symbols))
+    def get_by_label(self, label: str, *, raise_on_not_found: Optional[bool] = True) -> Optional[Symbol]:
+        result = list(filter(lambda symbol: symbol.label == label, self.symbols))
         if len(result) == 0:
-            return None
+            if raise_on_not_found:
+                raise ValueError(f'No symbol with label "{label}"')
+            else:
+                return None
         elif len(result) == 1:
             return result[0]
         else:
