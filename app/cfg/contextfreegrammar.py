@@ -1,8 +1,9 @@
-from typing import List
+from typing import Iterable, List, NoReturn, Optional
 
 from cfg.alphabet import Alphabet
 from cfg.rule import Rule
-from cfg.symbol import Symbol, SymbolString
+from cfg.symbol import Symbol
+from cfg.symbolstring import SymbolString
 from cfg.utilities import is_list_of_instance
 
 
@@ -10,16 +11,29 @@ class ContextFreeGrammar:
     symbols: List[Symbol]
     rules: List[Rule]
 
-    def __init__(self, alphabet: Alphabet, rules: List[Rule]):
+    def __init__(self, alphabet: Alphabet, rules: Iterable[Rule], *, fix: Optional[bool] = False):
         assert isinstance(alphabet, Alphabet)
         assert is_list_of_instance(rules, Rule)
 
-        self.alphabet: Alphabet = alphabet
-        self.rules: List[Rule] = rules
+        self.alphabet = alphabet
+        self.rules = list(rules)
 
-    def __str__(self):
-        rules_str = "\n".join(map(str, self.rules))
-        return f'{self.alphabet}\n{rules_str}'
+        if fix:
+            self.fix()
+
+    def __str__(self) -> str:
+        V_str = f'V={{{self.alphabet}}}'
+        Sigma_str = f'Σ={{{SymbolString(filter(lambda symbol: symbol.is_terminal, self.alphabet))}}}'
+        S_str = f'S={self.alphabet.get_start_symbol()}'
+        rules_str = ', '.join(map(str, self.rules))
+        R_str = f'R={{{rules_str}}}'
+
+        return f'{V_str}, {Sigma_str}, {S_str}, {R_str}'
+
+    def fix(self) -> NoReturn:
+        self.alphabet.symbols = self.alphabet.symbols[:2] + sorted(self.alphabet.symbols[2:])
+        self.rules = sorted(list(set(self.rules)))
+        self.rules = list(filter(lambda rule: SymbolString([rule.frm]) != rule.to, self.rules))
 
 
 if __name__ == "__main__":
@@ -34,12 +48,8 @@ if __name__ == "__main__":
 
     alphabet = Alphabet(symbols=symbols)
 
-    rules = [
-        Rule(A, [B, A]),
-        Rule(A, [a, B]),
-        Rule(B, b),
-        Rule(B, b)
-    ]
+    rules = [Rule(A, [B, A]), Rule(A, [a, B]), Rule(B, b), Rule(B, a)]
+    rules.sort()
 
     cfg = ContextFreeGrammar(alphabet=alphabet, rules=rules)
     print(cfg)

@@ -1,97 +1,140 @@
 from typing import List, Set
 
-from cfg.example import fully_erasable
-from cfg.alphabet import Alphabet
+from cfg.alphabet import alphabet_from
 from cfg.contextfreegrammar import ContextFreeGrammar
+from cfg.example import example_3_6_1
 from cfg.rule import Rule
-from cfg.symbol import Symbol, SymbolString
+from cfg.symbol import Symbol
 
 
 def is_in_chomsky_normal_form(cfg: ContextFreeGrammar) -> bool:
     assert isinstance(cfg, ContextFreeGrammar)
 
-    def check1(rule: Rule) -> bool:
-        """ A -> B C """
-        return len(rule.to) == 2 and all(map(lambda symbol: symbol.is_non_terminal, rule.to))
-
-    def check2(rule: Rule) -> bool:
-        """ A -> a """
-        return len(rule.to) == 1 and rule.to[0].is_terminal
-
-    # There is no reason for check3, because the empty string symbol ''
-    # is not treated specially. So, it falls within the scope of type 2
-
-    def check(rule: Rule) -> bool:
-        return check1(rule=rule) and check2(rule=rule)
-
-    return all(map(check, cfg.rules))
+    return all(map(lambda rule: len(rule.to) == 2, cfg.rules))
 
 
-def _cnf_long_rules(cfg: ContextFreeGrammar) -> List[Rule]:
-    cnf_rules: List[Rule] = list()
+def chomsky_normal_form(cfg: ContextFreeGrammar) -> ContextFreeGrammar:
+    assert isinstance(cfg, ContextFreeGrammar)
+
+    cfg = _remove_long_rules(cfg)
+    cfg = _remove_e_rules(cfg)
+    cfg = _remove_short_rules(cfg)
+
+    return cfg
+
+
+def _remove_long_rules(cfg: ContextFreeGrammar) -> ContextFreeGrammar:
+    new_symbols: List[Symbol] = list()
+    new_rules: List[Rule] = list()
 
     for rule in cfg.rules:
         # If rule is not long, do nothing with it
         if len(rule.to) <= 2:
-            cnf_rules.append(rule)
+            new_rules.append(rule)
             continue
 
-        new_rules: List[Rule] = list()
+        rules1: List[Rule] = list()
         frm_str = str(rule.frm)
         frm = rule.frm
         for i in range(len(rule.to) - 2):
             to0 = rule.to[i]
             to1 = Symbol(label=f'{frm_str}_{i}', is_terminal=False)
-            new_rules.append(Rule(frm, [to0, to1]))
+
+            new_symbols.append(to1)
+            rules1.append(Rule(frm, [to0, to1]))
+
             frm = to1
-        new_rules.append(Rule(frm, rule.to[-2:]))
+        rules1.append(Rule(frm, rule.to[-2:]))
 
         if rule.p is not None:
-            new_rules[0].p = rule.p
-            for new_rule in new_rules[1:]:
+            rules1[0].p = rule.p
+            for new_rule in rules1[1:]:
                 new_rule.p = 1
 
-        cnf_rules.extend(new_rules)
+        new_rules.extend(rules1)
 
-    return cnf_rules
+    return ContextFreeGrammar(alphabet_from(cfg.alphabet, new_symbols), new_rules, fix=True)
 
 
-def _erasables(cfg: ContextFreeGrammar):
+def _erasables(cfg: ContextFreeGrammar) -> Set[Symbol]:
     erasables: Set[Symbol] = set()
-    e = cfg.alphabet.get_empty_string_symbol()
+    erasables.add(cfg.alphabet.get_empty_string_symbol())
 
     previous_len: int = -1
     while len(erasables) != previous_len:
         for rule in cfg.rules:
-            if all(map(lambda symbol: symbol == e or symbol in erasables, rule.to)):
+            if all(map(lambda symbol: symbol in erasables, rule.to)):
                 erasables.add(rule.frm)
         previous_len = len(erasables)
 
     return erasables
 
 
+def _remove_e_rules(cfg: ContextFreeGrammar) -> ContextFreeGrammar:
+    e = cfg.alphabet.get_empty_string_symbol()
+
+    erasables = list(_erasables(cfg))
+
+    new_rules: List[Rule] = list()
+    for rule in cfg.rules:
+        if rule.to != [e]:
+            new_rules.append(rule)
+        if len(rule.to) == 2:
+            if rule.to[0] in erasables:
+                new_rules.append(Rule(frm=rule.frm, to=[rule.to[1]]))  # TODO define p
+            if rule.to[1] in erasables:
+                new_rules.append(Rule(frm=rule.frm, to=[rule.to[0]]))  # TODO define p
+
+    new_rules = list(set(new_rules))
+    new_rules.sort()
+    new_rules = list(filter(lambda rule: [rule.frm] != list(rule.to), new_rules))
+
+    return ContextFreeGrammar(cfg.alphabet, cfg.rules + new_rules, fix=True)
+
+
+def _derived(cfg: ContextFreeGrammar, symbol: Symbol) -> Set[Symbol]:
+    derived: Set[Symbol] = set()
+    derived.add(symbol)
+
+    previous_len = 0
+    while len(derived) != previous_len:
+        for rule in cfg.rules:
+            if len(rule.to) != 1:
+                continue
+            if rule.frm in derived:
+                derived.add(rule.to[0])
+        previous_len = len(derived)
+
+    return derived
+
+
+def _remove_short_rules(cfg: ContextFreeGrammar) -> ContextFreeGrammar:
+    derived = list(map(lambda symbol: _derived(cfg=cfg, symbol=symbol), cfg.alphabet))
+
+    rules1: List[Rule] = list(filter(lambda rule: len(rule.to) == 2, cfg.rules))
+
+    rules2: List[Rule] = list()
+    for rule in rules1:
+        derived0 = derived[cfg.alphabet.symbols.index(rule.to[0])]
+        derived1 = derived[cfg.alphabet.symbols.index(rule.to[1])]
+        for symbol0 in derived0:
+            for symbol1 in derived1:
+                rules2.append(Rule(frm=rule.frm, to=[symbol0, symbol1]))  # TODO define p
+
+    return ContextFreeGrammar(cfg.alphabet, rules1 + rules2, fix=True)
+
+
 if __name__ == "__main__":
-    A = Symbol('A', False)
-    B = Symbol('B', False)
-    a = Symbol('a', True)
-    b = Symbol('b', True)
-    c = Symbol('c', True)
-    d = Symbol('d', True)
+    cfg = example_3_6_1()
+    print(cfg)
 
-    alphabet = Alphabet(symbols=[A, B, a, b, c, d])
+    cfg1 = _remove_long_rules(cfg)
+    print(f'\nStep 1\n{cfg1}')
 
-    rules = [
-        Rule(A, [a, b, c, d, d, a], 0.3),
-        Rule(B, [a, b, c]),
-        Rule(alphabet.get_start_symbol(), [A, B])
-    ]
+    cfg2 = _remove_e_rules(cfg1)
+    print(f'\nStep 2\n{cfg2}')
 
-    cfg = ContextFreeGrammar(alphabet=alphabet, rules=rules)
-    print(f'ContextFreeGrammar:\n{cfg}\n')
+    cfg3 = _remove_short_rules(cfg2)
+    print(f'\nStep 3\n{cfg3}')
 
-    cfg_rules = _cnf_long_rules(cfg)
-    cfg_rules_str = '\n'.join(map(str, cfg_rules))
-    print(f'CNF rules:\n{cfg_rules_str}\n')
-
-    erasables = list(_erasables(fully_erasable()))
-    print(f'Erasables: {SymbolString(erasables)}\n')
+    print(list(map(is_in_chomsky_normal_form, [cfg, cfg1, cfg2, cfg3])))
