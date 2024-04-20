@@ -73,7 +73,7 @@ def _erasables(cfg: ContextFreeGrammar) -> Set[Symbol]:
 def _remove_e_rules(cfg: ContextFreeGrammar) -> ContextFreeGrammar:
     e = cfg.alphabet.get_empty_string_symbol()
 
-    erasables = list(_erasables(cfg))
+    erasables = _erasables(cfg)
 
     new_rules: List[Rule] = list()
     for rule in cfg.rules:
@@ -85,10 +85,6 @@ def _remove_e_rules(cfg: ContextFreeGrammar) -> ContextFreeGrammar:
             if rule.to[1] in erasables:
                 new_rules.append(Rule(frm=rule.frm, to=[rule.to[0]]))  # TODO define p
 
-    new_rules = list(set(new_rules))
-    new_rules.sort()
-    new_rules = list(filter(lambda rule: [rule.frm] != list(rule.to), new_rules))
-
     return ContextFreeGrammar(cfg.alphabet, cfg.rules + new_rules, fix=True)
 
 
@@ -96,7 +92,7 @@ def _derived(cfg: ContextFreeGrammar, symbol: Symbol) -> Set[Symbol]:
     derived: Set[Symbol] = set()
     derived.add(symbol)
 
-    previous_len = 0
+    previous_len = -1
     while len(derived) != previous_len:
         for rule in cfg.rules:
             if len(rule.to) != 1:
@@ -109,7 +105,7 @@ def _derived(cfg: ContextFreeGrammar, symbol: Symbol) -> Set[Symbol]:
 
 
 def _remove_short_rules(cfg: ContextFreeGrammar) -> ContextFreeGrammar:
-    derived = list(map(lambda symbol: _derived(cfg=cfg, symbol=symbol), cfg.alphabet))
+    derived = list(map(lambda symbol: _derived(cfg, symbol), cfg.alphabet))
 
     rules1: List[Rule] = list(filter(lambda rule: len(rule.to) == 2, cfg.rules))
 

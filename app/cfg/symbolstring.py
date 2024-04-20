@@ -1,4 +1,3 @@
-from dataclasses import field
 from typing import Generator, Iterable, List
 
 from cfg.symbol import Symbol
@@ -6,7 +5,7 @@ from cfg.utilities import is_list_of_instance
 
 
 class SymbolString:
-    symbols: List[Symbol] = field(init=False)
+    symbols: List[Symbol]
 
     def __init__(self, symbols: Iterable[Symbol]):
         assert isinstance(symbols, Iterable)

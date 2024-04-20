@@ -32,7 +32,7 @@ class Alphabet:
         S = self.get_start_symbol()
         e = self.get_empty_string_symbol()
 
-        return ' '.join(map(str, [S, e] + sorted(self.symbols[2:])))
+        return " ".join(map(str, [S, e] + sorted(self.symbols[2:])))
 
     def get_start_symbol(self) -> Symbol:
         return self[0]

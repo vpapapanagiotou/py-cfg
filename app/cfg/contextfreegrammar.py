@@ -8,15 +8,17 @@ from cfg.utilities import is_list_of_instance
 
 
 class ContextFreeGrammar:
-    symbols: List[Symbol]
+    alphabet: Alphabet
     rules: List[Rule]
 
     def __init__(self, alphabet: Alphabet, rules: Iterable[Rule], *, fix: Optional[bool] = False):
         assert isinstance(alphabet, Alphabet)
-        assert is_list_of_instance(rules, Rule)
+        assert isinstance(rules, Iterable)
 
         self.alphabet = alphabet
         self.rules = list(rules)
+
+        assert is_list_of_instance(rules, Rule)
 
         if fix:
             self.fix()
@@ -48,7 +50,7 @@ if __name__ == "__main__":
 
     alphabet = Alphabet(symbols=symbols)
 
-    rules = [Rule(A, [B, A]), Rule(A, [a, B]), Rule(B, b), Rule(B, a)]
+    rules = [Rule(A, [B, A]), Rule(A, [a, B]), Rule(B, [b]), Rule(B, [a])]
     rules.sort()
 
     cfg = ContextFreeGrammar(alphabet=alphabet, rules=rules)
