@@ -4,7 +4,7 @@ from cfg.alphabet import Alphabet
 from cfg.rule import Rule
 from cfg.symbol import Symbol
 from cfg.symbolstring import SymbolString
-from cfg.utilities import is_list_of_instance
+from utils.typingutils import is_list_of_instance
 
 
 class ContextFreeGrammar:

@@ -1,7 +1,7 @@
 from typing import Generator, Iterable, List, Optional
 
 from cfg.symbol import _EMPTY_STRING_SYMBOL_LABEL, _START_SYMBOL_LABEL, Symbol
-from cfg.utilities import is_list_of_instance
+from utils.typingutils import is_list_of_instance
 
 
 class Alphabet:

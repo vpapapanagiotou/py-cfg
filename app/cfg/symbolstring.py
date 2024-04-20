@@ -1,7 +1,7 @@
-from typing import Generator, Iterable, List
+from typing import Generator, Iterable, List, NoReturn
 
 from cfg.symbol import Symbol
-from cfg.utilities import is_list_of_instance
+from utils.typingutils import is_list_of_instance
 
 
 class SymbolString:
@@ -29,6 +29,9 @@ class SymbolString:
 
     def __str__(self) -> str:
         return " ".join(map(str, self.symbols))
+
+    def insert(self, i: int, symbol: Symbol) -> NoReturn:
+        self.symbols.insert(i, symbol)
 
     def is_terminal(self) -> bool:
         return all(map(lambda symbol: symbol.is_terminal, self.symbols))

@@ -1,17 +1,20 @@
-from typing import List
+from typing import Iterable, List, Optional
+
+from cfg.alphabet import Alphabet
+from cfg.symbolstring import SymbolString
 
 
-def is_list_of_instance(obj, class_or_tuple) -> bool:
-    return isinstance(obj, List) and all(map(lambda i: isinstance(i, class_or_tuple), obj))
+def symbol_string_from_labels(alphabet: Alphabet, labels: Iterable[str]) -> SymbolString:
+    assert isinstance(alphabet, Alphabet)
+    assert isinstance(labels, Iterable)
+
+    return SymbolString(map(lambda label: alphabet.get_by_label(label), labels))
 
 
-def append(list: List, item) -> int:
-    """
-    Append item to list and return the index of the item in the list
+def symbol_string_from_str(alphabet: Alphabet, s: str, *, split: Optional[str] = None):
+    if split is None:
+        labels = [*s]
+    else:
+        labels = s.split(split)
 
-    :param list:
-    :return:
-    """
-    list.append(item)
-
-    return len(list) - 1
+    return symbol_string_from_labels(alphabet, labels)

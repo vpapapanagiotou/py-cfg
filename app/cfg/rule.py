@@ -7,7 +7,7 @@ from cfg.symbolstring import SymbolString
 class Rule:
     frm: Symbol
     to: SymbolString
-    p: Optional[float] = None
+    p: Optional[float]
 
     def __init__(self, frm: Symbol, to: Iterable[Symbol], p: Optional[float] = None):
         assert isinstance(frm, Symbol)
