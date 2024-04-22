@@ -127,6 +127,7 @@ def _complete(state_set: EarleyItemSet, symbol: Symbol) -> List[EarleyItem]:
 
 def _earley_parse(cfg: ContextFreeGrammar, string: SymbolString) -> List[EarleyItemSet]:
     n: int = len(string)
+    e = cfg.alphabet.get_empty_string_symbol()
 
     state_sets: List[EarleyItemSet] = list()
     for i in range(n + 1):
@@ -179,9 +180,12 @@ class EarleyParserResult:
             )
         )
 
-    def print_state_sets(self) -> NoReturn:
+    def summary(self) -> str:
+        s = ''
         for i, state_set in enumerate(self._state_sets):
-            print(f'=== {i} ===\n{state_set.summary()}\n\n')
+            s += f'=== {i} ===\n{state_set.summary()}\n\n'
+
+        return s
 
 
 class EarleyParser:

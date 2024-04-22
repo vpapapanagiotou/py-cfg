@@ -17,10 +17,30 @@ class EarleyParserTests(TestCase):
 
         for symbol_string, correct_in_language in zip(symbol_strings, correct_in_language):
             with self.subTest(symbol_string):
-                self.assertEqual(parser.parse(symbol_string).in_language, correct_in_language)
+                result = parser.parse(symbol_string)
+                # print(result.summary())
+                self.assertEqual(result.in_language, correct_in_language)
 
     def test1(self):
-            cfg = example.loup_vaillant_1()
-            accepted = ['1+(2*3-4)']
-            not_accepted = ['1+']
-            self._check(cfg, accepted, not_accepted)
+        cfg = example.etc_3_6_1()
+        accepted = ['()', '(())', '((()))', '()()', '()(())', '(())(())', '(()())']
+        not_accepted = ['(', ')', '(()', '())', '(())(']
+        self._check(cfg, accepted, not_accepted)
+
+    def test2(self):
+        cfg = example.lebill_1()
+        accepted = ['abc', 'ac']
+        not_accepted = ['a', 'b', 'c', 'ab']
+        self._check(cfg, accepted, not_accepted)
+
+    def test3(self):
+        cfg = example.loup_vaillant_1()
+        accepted = ['1+(2*3-4)']
+        not_accepted = ['1+']
+        self._check(cfg, accepted, not_accepted)
+
+    def test4(self):
+        cfg = example.loup_vaillant_2()
+        accepted = ['']
+        not_accepted = []
+        self._check(cfg, accepted, not_accepted)

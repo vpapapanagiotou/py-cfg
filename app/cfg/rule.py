@@ -21,13 +21,16 @@ class Rule:
         self.p = p
 
     def __eq__(self, other) -> bool:
-        return isinstance(other, Rule) and self.frm == other.frm and self.to == other.to and self.p == other.p
+        return isinstance(other, Rule) and self.frm == other.frm and self.to == other.to  # and self.p == other.p
+
+    def _short_str(self) -> str:
+        return self.frm.label + ''.join(map(str, self.to))
 
     def __hash__(self) -> int:
-        return hash(self.frm.label + ''.join(map(str, self.to)))
+        return hash(self._short_str())
 
     def __lt__(self, other):
-        return str(self) < str(other)
+        return self._short_str() < other._short_str()
 
     def __str__(self) -> str:
         if self.p is None:
@@ -35,3 +38,12 @@ class Rule:
         else:
             p_str = f' (p={self.p})'
         return f'{self.frm} -> {self.to}{p_str}'
+
+    def is_empty(self) -> bool:
+        return len(self.to) == 0
+
+    def is_long(self) -> bool:
+        return len(self.to) > 2
+
+    def is_short(self) -> bool:
+        return len(self.to) == 1

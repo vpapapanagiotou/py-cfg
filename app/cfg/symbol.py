@@ -1,7 +1,7 @@
 from typing import Optional
 
 _START_SYMBOL_LABEL: str = 'S'
-_EMPTY_STRING_SYMBOL_LABEL: str = 'e'
+# _EMPTY_STRING_SYMBOL_LABEL: str = 'e'
 
 
 class Symbol:
@@ -24,13 +24,17 @@ class Symbol:
         self.description = description
 
     def __eq__(self, other) -> bool:
-        return isinstance(other, Symbol) and self.label == other.label and self.is_terminal == other.is_terminal
+        return isinstance(other, Symbol) and self.label == other.label  # and self.is_terminal == other.is_terminal
 
     def __hash__(self) -> int:
-        return hash((self.label, self.is_terminal))
+        return hash(self.label)  # hash((self.label, self.is_terminal))
 
     def __lt__(self, other) -> bool:
         return self.label < other.label
 
     def __str__(self, extended: bool = False) -> str:
         return self.label
+
+
+def start_symbol() -> Symbol:
+    return Symbol(_START_SYMBOL_LABEL, False, 'The start symbol')
