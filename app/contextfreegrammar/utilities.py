@@ -1,14 +1,11 @@
 from typing import Iterable, List, Optional
 
-from cfg.alphabet import Alphabet
-from cfg.symbolstring import SymbolString
+from contextfreegrammar.alphabet import Alphabet, get_symbol_by_label
+from contextfreegrammar.symbolstring import SymbolString
 
 
 def symbol_string_from_labels(alphabet: Alphabet, labels: Iterable[str]) -> SymbolString:
-    assert isinstance(alphabet, Alphabet)
-    assert isinstance(labels, Iterable)
-
-    return SymbolString(map(lambda label: alphabet.get_by_label(label), labels))
+    return SymbolString(map(lambda label: get_symbol_by_label(alphabet, label), labels))
 
 
 def symbol_string_from_str(alphabet: Alphabet, s: str, *, split: Optional[str] = None):

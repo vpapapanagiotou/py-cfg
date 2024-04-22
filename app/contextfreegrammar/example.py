@@ -1,6 +1,6 @@
-from cfg.contextfreegrammar import context_free_grammar_from_rules, ContextFreeGrammar
-from cfg.rule import Rule
-from cfg.symbol import start_symbol, Symbol
+from contextfreegrammar.contextfreegrammar import context_free_grammar_from_rules, ContextFreeGrammar
+from contextfreegrammar.rule import Rule
+from contextfreegrammar.symbol import start_symbol, Symbol
 
 
 def etc_3_6_1() -> ContextFreeGrammar:

@@ -1,7 +1,6 @@
 from typing import Optional
 
 _START_SYMBOL_LABEL: str = 'S'
-# _EMPTY_STRING_SYMBOL_LABEL: str = 'e'
 
 
 class Symbol:

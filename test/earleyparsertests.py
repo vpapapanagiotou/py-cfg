@@ -1,10 +1,10 @@
 from typing import List
 from unittest import TestCase
 
-from cfg import example
-from cfg.contextfreegrammar import ContextFreeGrammar
-from cfg.earleyparser import EarleyParser
-from cfg.utilities import symbol_string_from_labels
+from contextfreegrammar import example
+from contextfreegrammar.contextfreegrammar import ContextFreeGrammar
+from contextfreegrammar.earleyparser import EarleyParser
+from contextfreegrammar.utilities import symbol_string_from_labels
 
 
 class EarleyParserTests(TestCase):

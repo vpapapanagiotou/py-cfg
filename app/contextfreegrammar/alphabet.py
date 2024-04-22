@@ -1,6 +1,6 @@
 from typing import Generator, Iterable, Optional, Set
 
-from cfg.symbol import Symbol
+from contextfreegrammar.symbol import Symbol
 from utils.typingutils import is_set_of_instance
 
 
@@ -14,9 +14,6 @@ class Alphabet:
 
         assert is_set_of_instance(self._symbols, Symbol)
 
-    # def __getitem__(self, item):
-    #    return self._symbols[item]
-
     def __iter__(self) -> Generator[Symbol, None, None]:
         for symbol in self._symbols:
             yield symbol
@@ -28,8 +25,9 @@ class Alphabet:
         return " ".join(map(str, sorted(self._symbols)))
 
 
-def get_symbol_by_label(symbols: Iterable[Symbol], label: str, *, raise_on_not_found: Optional[bool] = True) -> \
-        Optional[Symbol]:
+def get_symbol_by_label(
+        symbols: Iterable[Symbol], label: str, *, raise_on_not_found: Optional[bool] = True
+) -> Optional[Symbol]:
     result = list(filter(lambda symbol: symbol.label == label, symbols))
     if len(result) == 0:
         if raise_on_not_found:

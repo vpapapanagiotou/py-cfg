@@ -1,9 +1,9 @@
 from typing import List, Set
 
-from cfg.alphabet import Alphabet
-from cfg.contextfreegrammar import ContextFreeGrammar
-from cfg.rule import Rule
-from cfg.symbol import Symbol
+from contextfreegrammar.alphabet import Alphabet
+from contextfreegrammar.contextfreegrammar import ContextFreeGrammar
+from contextfreegrammar.rule import Rule
+from contextfreegrammar.symbol import Symbol
 
 
 def is_in_chomsky_normal_form(cfg: ContextFreeGrammar) -> bool:
@@ -75,7 +75,13 @@ def _remove_e_rules(cfg: ContextFreeGrammar) -> ContextFreeGrammar:
         if rule.to[1] in erasables:
             new_rules.append(Rule(rule.frm, [rule.to[0]]))  # TODO define p
 
-    return ContextFreeGrammar(cfg.alphabet, cfg.start_symbol, new_rules, fix=True, ignore_duplicate_rules=True)
+    return ContextFreeGrammar(
+        cfg.alphabet,
+        cfg.start_symbol,
+        new_rules,
+        fix=True,
+        ignore_duplicate_rules=True
+        )
 
 
 def _derived(cfg: ContextFreeGrammar, symbol: Symbol) -> Set[Symbol]:
@@ -112,12 +118,12 @@ def _remove_short_rules(cfg: ContextFreeGrammar) -> ContextFreeGrammar:
 
 
 if __name__ == "__main__":
-    from cfg.example import etc_3_6_1
+    from contextfreegrammar.example import etc_3_6_1
 
-    cfg = etc_3_6_1()
-    print(cfg.summary())
+    cfg0 = etc_3_6_1()
+    print(cfg0.summary())
 
-    cfg1 = _remove_long_rules(cfg)
+    cfg1 = _remove_long_rules(cfg0)
     print(f'\nStep 1\n{cfg1.summary()}')
 
     cfg2 = _remove_e_rules(cfg1)

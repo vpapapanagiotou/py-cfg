@@ -1,2 +1,2 @@
-# py-cfg
+# py-contextfreegrammar
 Context-Free Grammar toolbox for python

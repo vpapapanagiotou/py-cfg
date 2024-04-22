@@ -1,9 +1,10 @@
 import numpy as np
 
-from cfg.chomskynormalform import chomsky_normal_form, is_in_chomsky_normal_form
-from cfg.contextfreegrammar import ContextFreeGrammar
-from cfg.symbol import Symbol
-from cfg.symbolstring import SymbolString
+from contextfreegrammar.alphabet import get_symbol_by_label
+from contextfreegrammar.chomskynormalform import chomsky_normal_form, is_in_chomsky_normal_form
+from contextfreegrammar.contextfreegrammar import ContextFreeGrammar
+from contextfreegrammar.symbol import Symbol
+from contextfreegrammar.symbolstring import SymbolString
 
 
 def _state_matrix(cfg: ContextFreeGrammar, string: SymbolString) -> np.ndarray:
@@ -51,18 +52,20 @@ class DynamicProgrammingParser:
             self.cfg = chomsky_normal_form(cfg)
 
     def parse(self, string: SymbolString) -> DynamicProgrammingParserResult:
+        assert isinstance(string, SymbolString)
+
         state_matrix = _state_matrix(self.cfg, string)
-        return DynamicProgrammingParserResult(state_matrix, self.cfg.alphabet.get_start_symbol())
+        return DynamicProgrammingParserResult(state_matrix, self.cfg.start_symbol)
 
 
 if __name__ == "__main__":
-    from cfg.example import etc_3_6_1
+    from contextfreegrammar.example import etc_3_6_1
 
     cfg = etc_3_6_1()
     cfg1 = chomsky_normal_form(cfg)
 
-    lp = cfg1.alphabet.get_by_label('(')
-    rp = cfg1.alphabet.get_by_label(')')
+    lp = get_symbol_by_label(cfg1.alphabet, '(')
+    rp = get_symbol_by_label(cfg1.alphabet, ')')
     string = SymbolString([lp, lp, rp, lp, lp, rp, rp, rp])
     print(string)
 

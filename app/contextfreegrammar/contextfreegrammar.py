@@ -1,10 +1,10 @@
 from itertools import chain
 from typing import Iterable, List, NoReturn, Optional
 
-from cfg.alphabet import Alphabet, get_symbol_by_label
-from cfg.rule import Rule
-from cfg.symbol import _START_SYMBOL_LABEL, Symbol
-from cfg.symbolstring import SymbolString
+from contextfreegrammar.alphabet import Alphabet, get_symbol_by_label
+from contextfreegrammar.rule import Rule
+from contextfreegrammar.symbol import _START_SYMBOL_LABEL, Symbol
+from contextfreegrammar.symbolstring import SymbolString
 from utils.typingutils import is_list_of_instance
 
 
@@ -70,7 +70,7 @@ def context_free_grammar_from_rules(
 ) -> ContextFreeGrammar:
     symbols = chain.from_iterable(map(lambda rule: [rule.frm] + list(rule.to), rules))
     alphabet = Alphabet(symbols)
-    start_symbol = get_symbol_by_label(alphabet, _START_SYMBOL_LABEL)
+    start_symbol = get_symbol_by_label(alphabet, start_symbol_label)
 
     return ContextFreeGrammar(alphabet, start_symbol, rules)
 

@@ -1,10 +1,10 @@
 from typing import Generator, List, NoReturn, Optional
 
-from cfg.contextfreegrammar import ContextFreeGrammar
-from cfg.rule import Rule
-from cfg.symbol import Symbol
-from cfg.symbolstring import SymbolString
-from cfg.utilities import symbol_string_from_str
+from contextfreegrammar.contextfreegrammar import ContextFreeGrammar
+from contextfreegrammar.rule import Rule
+from contextfreegrammar.symbol import Symbol
+from contextfreegrammar.symbolstring import SymbolString
+from contextfreegrammar.utilities import symbol_string_from_str
 from utils.strutils import _ljust_max
 
 _DOT = '•'
@@ -127,14 +127,13 @@ def _complete(state_set: EarleyItemSet, symbol: Symbol) -> List[EarleyItem]:
 
 def _earley_parse(cfg: ContextFreeGrammar, string: SymbolString) -> List[EarleyItemSet]:
     n: int = len(string)
-    e = cfg.alphabet.get_empty_string_symbol()
 
     state_sets: List[EarleyItemSet] = list()
     for i in range(n + 1):
         state_sets.append(EarleyItemSet())
 
     for rule in cfg.rules:
-        if rule.frm == cfg.alphabet.get_start_symbol():
+        if rule.frm == cfg.start_symbol:
             state_sets[0].add(EarleyItem(rule))
 
     for state_set_idx, state_set in enumerate(state_sets[:-1]):
@@ -195,16 +194,16 @@ class EarleyParser:
         self.cfg = cfg
 
     def parse(self, string: SymbolString) -> EarleyParserResult:
-        return EarleyParserResult(_earley_parse(self.cfg, string), self.cfg.alphabet.get_start_symbol())
+        return EarleyParserResult(_earley_parse(self.cfg, string), self.cfg.start_symbol)
 
 
 if __name__ == '__main__':
-    from cfg.example import loup_vaillant_1, loup_vaillant_2_le
+    from contextfreegrammar import example
 
-    cfg: ContextFreeGrammar = loup_vaillant_1()
+    cfg: ContextFreeGrammar = example.loup_vaillant_1()
     string: SymbolString = symbol_string_from_str(cfg.alphabet, '1+(2*3-4)')
-    # _earley_parse(cfg, string)
-
-    cfg: ContextFreeGrammar = loup_vaillant_2_le()
-    string: SymbolString = symbol_string_from_str(cfg.alphabet, 'ab')
     _earley_parse(cfg, string)
+
+    cfg: ContextFreeGrammar = example.loup_vaillant_2()
+    string: SymbolString = symbol_string_from_str(cfg.alphabet, 'ab')
+    # _earley_parse(cfg, string)
