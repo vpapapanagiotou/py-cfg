@@ -1,9 +1,10 @@
-from typing import List, Set
+from typing import Iterable, List, Set
 
-from contextfreegrammar.alphabet import Alphabet
-from contextfreegrammar.contextfreegrammar import ContextFreeGrammar
-from contextfreegrammar.rule import Rule
-from contextfreegrammar.symbol import Symbol
+from pycfg.alphabet import Alphabet
+from pycfg.contextfreegrammar import ContextFreeGrammar
+from pycfg.rule import Rule
+from pycfg.symbol import Symbol
+from pycfg.utilities import erasables_set
 
 
 def is_in_chomsky_normal_form(cfg: ContextFreeGrammar) -> bool:
@@ -50,22 +51,8 @@ def _remove_long_rules(cfg: ContextFreeGrammar) -> ContextFreeGrammar:
     return ContextFreeGrammar(Alphabet(list(cfg.alphabet) + new_symbols), cfg.start_symbol, rules, fix=True)
 
 
-def _erasables(cfg: ContextFreeGrammar) -> Set[Symbol]:
-    previous_len: int = 0
-    empty_rules = filter(lambda rule: rule.is_empty(), cfg.rules)
-    erasables: Set[Symbol] = set(map(lambda rule: rule.frm, empty_rules))
-
-    while len(erasables) != previous_len:
-        previous_len = len(erasables)
-        for rule in cfg.rules:
-            if all(map(lambda symbol: symbol in erasables, rule.to)):
-                erasables.add(rule.frm)
-
-    return erasables
-
-
 def _remove_e_rules(cfg: ContextFreeGrammar) -> ContextFreeGrammar:
-    erasables = _erasables(cfg)
+    erasables = erasables_set(cfg.rules)
 
     new_rules: List[Rule] = list(filter(lambda _rule: not _rule.is_empty(), cfg.rules))
 
@@ -76,22 +63,18 @@ def _remove_e_rules(cfg: ContextFreeGrammar) -> ContextFreeGrammar:
             new_rules.append(Rule(rule.frm, [rule.to[0]]))  # TODO define p
 
     return ContextFreeGrammar(
-        cfg.alphabet,
-        cfg.start_symbol,
-        new_rules,
-        fix=True,
-        ignore_duplicate_rules=True
-        )
+        cfg.alphabet, cfg.start_symbol, new_rules, fix=True, ignore_duplicate_rules=True
+    )
 
 
-def _derived(cfg: ContextFreeGrammar, symbol: Symbol) -> Set[Symbol]:
+def _derived(rules: Iterable[Rule], symbol: Symbol) -> Set[Symbol]:
     previous_len = 0
     derived: Set[Symbol] = set()
     derived.add(symbol)
 
     while len(derived) != previous_len:
         previous_len = len(derived)
-        for rule in filter(lambda _rule: _rule.is_short(), cfg.rules):
+        for rule in filter(lambda _rule: _rule.is_short(), rules):
             if rule.frm in derived:
                 derived.add(rule.to[0])
 
@@ -100,9 +83,9 @@ def _derived(cfg: ContextFreeGrammar, symbol: Symbol) -> Set[Symbol]:
 
 def _remove_short_rules(cfg: ContextFreeGrammar) -> ContextFreeGrammar:
     symbols = list(cfg.alphabet)
-    derived_from = list(map(lambda symbol: _derived(cfg, symbol), symbols))
+    derived_from = list(map(lambda symbol: _derived(cfg.rules, symbol), symbols))
 
-    new_rules_1: List[Rule] = list(filter(lambda rule: not rule.is_short(), cfg.rules))
+    new_rules_1: List[Rule] = list(filter(lambda _rule: not _rule.is_short(), cfg.rules))
 
     new_rules_2: List[Rule] = list()
     for rule in new_rules_1:
@@ -118,7 +101,7 @@ def _remove_short_rules(cfg: ContextFreeGrammar) -> ContextFreeGrammar:
 
 
 if __name__ == "__main__":
-    from contextfreegrammar.example import etc_3_6_1
+    from pycfg.example import etc_3_6_1
 
     cfg0 = etc_3_6_1()
     print(cfg0.summary())

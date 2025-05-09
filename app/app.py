@@ -1,4 +1,4 @@
-from contextfreegrammar.alphabet import Symbol
+from pycfg.alphabet import Symbol
 
 x = Symbol('S', False)
 

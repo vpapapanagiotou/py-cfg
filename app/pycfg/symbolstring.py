@@ -1,6 +1,6 @@
 from typing import Generator, Iterable, List, NoReturn
 
-from contextfreegrammar.symbol import Symbol
+from pycfg.symbol import Symbol
 from utils.typingutils import is_list_of_instance
 
 

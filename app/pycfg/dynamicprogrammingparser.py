@@ -1,10 +1,10 @@
 import numpy as np
 
-from contextfreegrammar.alphabet import get_symbol_by_label
-from contextfreegrammar.chomskynormalform import chomsky_normal_form, is_in_chomsky_normal_form
-from contextfreegrammar.contextfreegrammar import ContextFreeGrammar
-from contextfreegrammar.symbol import Symbol
-from contextfreegrammar.symbolstring import SymbolString
+from pycfg.alphabet import get_symbol_by_label
+from pycfg.chomskynormalform import chomsky_normal_form, is_in_chomsky_normal_form
+from pycfg.contextfreegrammar import ContextFreeGrammar
+from pycfg.symbol import Symbol
+from pycfg.symbolstring import SymbolString
 
 
 def _state_matrix(cfg: ContextFreeGrammar, string: SymbolString) -> np.ndarray:
@@ -59,7 +59,7 @@ class DynamicProgrammingParser:
 
 
 if __name__ == "__main__":
-    from contextfreegrammar.example import etc_3_6_1
+    from pycfg.example import etc_3_6_1
 
     cfg = etc_3_6_1()
     cfg1 = chomsky_normal_form(cfg)

@@ -1,7 +1,7 @@
 from typing import Iterable, Optional
 
-from contextfreegrammar.symbol import Symbol
-from contextfreegrammar.symbolstring import SymbolString
+from pycfg.symbol import Symbol
+from pycfg.symbolstring import SymbolString
 
 
 class Rule:

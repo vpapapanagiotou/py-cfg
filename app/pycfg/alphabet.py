@@ -1,6 +1,6 @@
 from typing import Generator, Iterable, Optional, Set
 
-from contextfreegrammar.symbol import Symbol
+from pycfg.symbol import Symbol
 from utils.typingutils import is_set_of_instance
 
 

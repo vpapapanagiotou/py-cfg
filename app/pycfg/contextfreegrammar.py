@@ -1,10 +1,10 @@
 from itertools import chain
 from typing import Iterable, List, NoReturn, Optional
 
-from contextfreegrammar.alphabet import Alphabet, get_symbol_by_label
-from contextfreegrammar.rule import Rule
-from contextfreegrammar.symbol import _START_SYMBOL_LABEL, Symbol
-from contextfreegrammar.symbolstring import SymbolString
+from pycfg.alphabet import Alphabet, get_symbol_by_label
+from pycfg.rule import Rule
+from pycfg.symbol import _START_SYMBOL_LABEL, Symbol
+from pycfg.symbolstring import SymbolString
 from utils.typingutils import is_list_of_instance
 
 
@@ -73,23 +73,3 @@ def context_free_grammar_from_rules(
     start_symbol = get_symbol_by_label(alphabet, start_symbol_label)
 
     return ContextFreeGrammar(alphabet, start_symbol, rules)
-
-
-if __name__ == "__main__":
-    S = Symbol('S')
-    A = Symbol('A')
-    B = Symbol('B')
-    a = Symbol('a')
-    b = Symbol('b')
-    symbols = [A, B, a, b]
-
-    ss = SymbolString([A, a, b])
-    print(ss == ss, ss == SymbolString([A, a]), ss == SymbolString([A, a, b]), ss == [A, a], ss == [A, a, 'b'])
-
-    alphabet = Alphabet(symbols)
-
-    rules = [Rule(A, [B, A]), Rule(A, [a, B]), Rule(B, [b]), Rule(B, [a])]
-    rules.sort()
-
-    cfg = ContextFreeGrammar(alphabet, S, rules)
-    print(cfg.summary())

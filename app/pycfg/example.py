@@ -1,6 +1,6 @@
-from contextfreegrammar.contextfreegrammar import context_free_grammar_from_rules, ContextFreeGrammar
-from contextfreegrammar.rule import Rule
-from contextfreegrammar.symbol import start_symbol, Symbol
+from pycfg.contextfreegrammar import context_free_grammar_from_rules, ContextFreeGrammar
+from pycfg.rule import Rule
+from pycfg.symbol import start_symbol, Symbol
 
 
 def etc_3_6_1() -> ContextFreeGrammar:
@@ -8,7 +8,11 @@ def etc_3_6_1() -> ContextFreeGrammar:
     left_parenthesis = Symbol('(')
     right_parenthesis = Symbol(')')
 
-    rules = [Rule(S, [S, S]), Rule(S, [left_parenthesis, S, right_parenthesis]), Rule(S, [])]
+    rules = [
+        Rule(S, [S, S]),
+        Rule(S, [left_parenthesis, S, right_parenthesis]),
+        Rule(S, [])
+    ]
 
     return context_free_grammar_from_rules(rules)
 
@@ -38,12 +42,30 @@ def loup_vaillant_1() -> ContextFreeGrammar:
 
 
 def loup_vaillant_2() -> ContextFreeGrammar:
-    S = start_symbol()
     A = Symbol('A')
+    B = Symbol('B')
 
-    rules = [Rule(S, []), Rule(S, [A]), Rule(A, [S])]
+    rules = [Rule(A, []), Rule(A, [B]), Rule(B, [A])]
 
-    return context_free_grammar_from_rules(rules)
+    return context_free_grammar_from_rules(rules, A.label)
+
+
+def loup_vaillant_3a():
+    A = Symbol('A')
+    a = Symbol('a')
+
+    rules = [Rule(A, [A, a]), Rule(A, [])]
+
+    return context_free_grammar_from_rules(rules, A.label)
+
+
+def loup_vaillant_3b():
+    A = Symbol('A')
+    a = Symbol('a')
+
+    rules = [Rule(A, [a, A]), Rule(A, [])]
+
+    return context_free_grammar_from_rules(rules, A.label)
 
 
 def lebill_1() -> ContextFreeGrammar:

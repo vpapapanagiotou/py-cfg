@@ -1,10 +1,10 @@
 from typing import List
 from unittest import TestCase
 
-from contextfreegrammar import example
-from contextfreegrammar.contextfreegrammar import ContextFreeGrammar
-from contextfreegrammar.dynamicprogrammingparser import DynamicProgrammingParser
-from contextfreegrammar.utilities import symbol_string_from_labels
+from pycfg import example
+from pycfg.contextfreegrammar import ContextFreeGrammar
+from pycfg.dynamicprogrammingparser import DynamicProgrammingParser
+from pycfg.utilities import symbol_string_from_labels
 
 
 class DynamicProgrammingParserTests(TestCase):

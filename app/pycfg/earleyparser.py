@@ -1,10 +1,10 @@
 from typing import Generator, List, NoReturn, Optional
 
-from contextfreegrammar.contextfreegrammar import ContextFreeGrammar
-from contextfreegrammar.rule import Rule
-from contextfreegrammar.symbol import Symbol
-from contextfreegrammar.symbolstring import SymbolString
-from contextfreegrammar.utilities import symbol_string_from_str
+from pycfg.contextfreegrammar import ContextFreeGrammar
+from pycfg.rule import Rule
+from pycfg.symbol import Symbol
+from pycfg.symbolstring import SymbolString
+from pycfg.utilities import erasables_set, symbol_string_from_str
 from utils.strutils import _ljust_max
 
 _DOT = '•'
@@ -19,24 +19,24 @@ def _special_fmt_1(string: SymbolString, i: int) -> str:
 
 class EarleyItem:
     rule: Rule
-    start: int
+    s: int  # start or stop index
     i: int
 
     def __init__(self, rule: Rule, start: int = 0, i: int = 0):
         self.rule = rule
-        self.start = start
+        self.s = start
         self.i = i
 
     def __eq__(self, other) -> bool:
         return isinstance(
             other, EarleyItem
-        ) and self.rule == other.rule and self.start == other.start and self.i == other.i
+        ) and self.rule == other.rule and self.s == other.s and self.i == other.i
 
     def __hash__(self) -> int:
-        return hash((self.rule, self.start, self.i))
+        return hash((self.rule, self.s, self.i))
 
     def __str__(self) -> str:
-        return f'{self.rule.frm} -> {_special_fmt_1(self.rule.to, self.i)}  S({self.start})'
+        return f'{self.rule.frm} -> {_special_fmt_1(self.rule.to, self.i)}  S({self.s})'
 
     def is_complete(self) -> bool:
         return self.i == len(self.rule.to)
@@ -85,7 +85,7 @@ class EarleyItemSet:
         part_2 = list(map(lambda earley_item: _special_fmt_1(earley_item.rule.to, earley_item.i), self.earley_items))
         part_2 = _ljust_max(part_2)
 
-        part_3 = list(map(lambda earley_item: f'S({earley_item.start})', self.earley_items))
+        part_3 = list(map(lambda earley_item: f'S({earley_item.s})', self.earley_items))
 
         return '\n'.join(map(lambda t: f'{t[0]} -> {t[1]}   {t[2]}', zip(part_1, part_2, part_3)))
 
@@ -108,7 +108,7 @@ def _scan(state: EarleyItem, next_symbol: Symbol) -> List[EarleyItem]:
     new_states: List[EarleyItem] = list()
 
     if state.next_symbol() == next_symbol:
-        new_states.append(EarleyItem(state.rule, state.start, state.i + 1))
+        new_states.append(EarleyItem(state.rule, state.s, state.i + 1))
 
     return new_states
 
@@ -120,13 +120,15 @@ def _complete(state_set: EarleyItemSet, symbol: Symbol) -> List[EarleyItem]:
 
     for state in state_set:
         if state.next_symbol() == symbol:
-            new_rules.append(EarleyItem(state.rule, state.start, state.i + 1))
+            new_rules.append(EarleyItem(state.rule, state.s, state.i + 1))
 
     return new_rules
 
 
-def _earley_parse(cfg: ContextFreeGrammar, string: SymbolString) -> List[EarleyItemSet]:
+def _earley_recognizer(cfg: ContextFreeGrammar, string: SymbolString) -> List[EarleyItemSet]:
     n: int = len(string)
+
+    erasables = erasables_set(cfg.rules)
 
     state_sets: List[EarleyItemSet] = list()
     for i in range(n + 1):
@@ -136,32 +138,44 @@ def _earley_parse(cfg: ContextFreeGrammar, string: SymbolString) -> List[EarleyI
         if rule.frm == cfg.start_symbol:
             state_sets[0].add(EarleyItem(rule))
 
-    for state_set_idx, state_set in enumerate(state_sets[:-1]):
+    for state_set_idx, state_set in enumerate(state_sets):
         for state in state_set:
             next_symbol = state.next_symbol()
             if next_symbol is None:
-                state_set.add_many(_complete(state_sets[state.start], state.rule.frm))
+                state_set.add_many(_complete(state_sets[state.s], state.rule.frm))
             elif next_symbol.is_terminal:
-                state_sets[state_set_idx + 1].add_many(_scan(state, string[state_set_idx]))
+                if state_set_idx + 1 < len(state_sets):
+                    state_sets[state_set_idx + 1].add_many(_scan(state, string[state_set_idx]))
             elif not next_symbol.is_terminal:
-                state_set.add_many(_predict(cfg.rules, state.next_symbol(), state_set_idx))
+                if next_symbol in erasables:
+                    state_set.add(EarleyItem(state.rule, state.s, state.i + 1))
+                state_set.add_many(_predict(cfg.rules, next_symbol, state_set_idx))
             else:
                 raise RuntimeError('This is unexpected')
 
-    state_set_idx = len(state_sets) - 1
-    state_set = state_sets[state_set_idx]
-    for state in state_set:
-        next_symbol = state.next_symbol()
-        if next_symbol is None:
-            state_set.add_many(_complete(state_sets[state.start], state.rule.frm))
-        elif next_symbol.is_terminal:
-            pass  # state_sets[state_set_idx + 1].add_many(_scan(cfg.rules, state, string[state_set_idx]))
-        elif not next_symbol.is_terminal:
-            pass  # state_set.add_many(_predict(cfg.rules, state.next_symbol(), state_set_idx))
-        else:
-            raise RuntimeError('This is unexpected')
-
     return state_sets
+
+
+def _transpose_state_sets(state_sets: List[EarleyItemSet]):
+    state_sets_t: List[EarleyItemSet] = list()
+    for i in range(len(state_sets)):
+        state_sets_t.append(EarleyItemSet())
+
+    for state_set_idx, state_set in enumerate(state_sets):
+        for state in state_set:
+            if state.is_complete():
+                state_sets_t[state.s].add(EarleyItem(state.rule, state_set_idx, state.i))
+
+    return state_sets_t
+
+
+def _earley_parse(
+    string: SymbolString, state_sets_t: List[EarleyItemSet], state_set_idx: int, start: int, stop: int
+) -> bool:
+    if stop > len(string):
+        return False
+
+
 
 
 class EarleyParserResult:
@@ -173,8 +187,7 @@ class EarleyParserResult:
 
         self.in_language = any(
             map(
-                lambda
-                    state_set: state_set.is_complete() and state_set.start == 0 and state_set.rule.frm == start_symbol,
+                lambda state_set: state_set.is_complete() and state_set.s == 0 and state_set.rule.frm == start_symbol,
                 state_sets[-1]
             )
         )
@@ -194,16 +207,22 @@ class EarleyParser:
         self.cfg = cfg
 
     def parse(self, string: SymbolString) -> EarleyParserResult:
-        return EarleyParserResult(_earley_parse(self.cfg, string), self.cfg.start_symbol)
+        state_sets = _earley_recognizer(self.cfg, string)
+        state_sets_t = _transpose_state_sets(state_sets)
+
+        return EarleyParserResult(state_sets, self.cfg.start_symbol)
 
 
 if __name__ == '__main__':
-    from contextfreegrammar import example
+    from pycfg import example
+
+    # cfg = example.etc_3_6_1()
+    # symbol_string = symbol_string_from_str(cfg.alphabet, '()()')
+    # _earley_recognizer(cfg, symbol_string)
 
     cfg: ContextFreeGrammar = example.loup_vaillant_1()
     string: SymbolString = symbol_string_from_str(cfg.alphabet, '1+(2*3-4)')
-    _earley_parse(cfg, string)
+    print(EarleyParser(cfg).parse(string).summary())
 
-    cfg: ContextFreeGrammar = example.loup_vaillant_2()
-    string: SymbolString = symbol_string_from_str(cfg.alphabet, 'ab')
-    # _earley_parse(cfg, string)
+    # cfg: ContextFreeGrammar = example.loup_vaillant_2()  # string: SymbolString = symbol_string_from_str(  #
+    # cfg.alphabet, 'ab')
